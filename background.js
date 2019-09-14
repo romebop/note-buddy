@@ -1,28 +1,39 @@
-chrome.runtime.onInstalled.addListener(function() {
-  
-  chrome.storage.sync.set({color: '#3aa757'}, function() {
-    console.log("The color is green.");
-  });
-  
-  chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
-    chrome.declarativeContent.onPageChanged.addRules([{
-      conditions: [new chrome.declarativeContent.PageStateMatcher({
-        pageUrl: { hostEquals: 'developer.chrome.com' },
-      })],
-      actions: [new chrome.declarativeContent.ShowPageAction()]
-    }]);
-  });
+chrome.runtime.onInstalled.addListener(() => {
   
   chrome.contextMenus.create({
     id: 'randomID',
     contexts: ['selection'],
-    title: 'we did it *-*',
+    title: 'save note ฅ^•ﻌ•^ฅ',
   }, () => {
-    console.log('callback from create');
+    console.log('@@@ "save note" context menu item created @@@');
   });
 
 });
 
-chrome.contextMenus.onClicked.addListener(() => {
-  console.log('hehe clicked -- it tickles')
+chrome.contextMenus.onClicked.addListener(info => {
+  console.log('@@@ context menu clicked @@@');
+  const note = info.selectionText;
+
+  chrome.identity.getProfileUserInfo(userInfo => {
+    console.log('@@@ grabbed profile user @@@');
+    const email = userInfo.email;
+    const storageKey = email + ':notebuddy';
+
+    chrome.storage.local.get([storageKey], result => {
+      let updatedNote;
+      if (result.storageKey) {
+        updatedNote = result.storageKey + '\n' + note;
+      } else {
+        updatedNote = note;
+      }
+
+      chrome.storage.local.set({ [storageKey]: updatedNote }, () => {
+        console.log('@@@ stored to local storage: @@@');
+        console.log('@@@ key: @@@');
+        console.log(storageKey);
+        console.log('@@@ value: @@@');
+        console.log(note);
+      });
+    });
+  });
 });
