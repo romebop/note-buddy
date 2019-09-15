@@ -3,6 +3,7 @@
   "version": "1.0",
   "description": "take notes in the browser!",
   "permissions": [
+    "alarms",
     "contextMenus",
     "identity",
     "identity.email",
